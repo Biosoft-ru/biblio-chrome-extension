@@ -1,6 +1,8 @@
 .project-info h3 {
   margin: 10px 0 0;
+  display: inline-block;
 }
+
 .project-info p {
   margin: 0;
 }
