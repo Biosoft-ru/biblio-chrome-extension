@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+    <title>Biblio chrome extension</title>
+    <link href="popup.css" rel="stylesheet" type="text/css">
+    <script src="../jquery.js"></script>
+    <script src="popup.js"></script>
+</head>
+<body>
+    <div id="login-block">
+        <h3>Biblio Login</h3>
+        <form>
+            <input id="username" name="username" placeholder="Username" />
+            <input id="password" name="password" placeholder="Password"  />
+            <input type="submit" value="Login" />
+        </form>
+    </div>
+    <div id="logout-block" style="display: none;">
+        <h3>Biblio Logout</h3>
+        <button id="logout">Logout</button>
+    </div>
+</body>
+</html>

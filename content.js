@@ -6,7 +6,18 @@ let projectTemplate = '<div class="project-info">\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
 
-load();
+chrome.storage.local.get(['jwtoken'], function(result) {
+  loadData(result.jwtoken)
+});
+
+function loadData(jwtoken)
+{
+  console.log('loadData: jwtoken' + jwtoken);
+}
+// $.get( "http://localhost:8080/biostore/permission?action=login&serverName=micro.biouml.org&password=&username=", function( data ) {
+//   console.log( "Load was performed.", data );
+//   load();
+// });
 
 function load() {
 

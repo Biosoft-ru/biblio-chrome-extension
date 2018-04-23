@@ -1,0 +1,9 @@
+input {
+  margin: 2px;
+  padding: 2px;
+}
+
+#login-block,
+#logout-block {
+  width: 200px
+}
