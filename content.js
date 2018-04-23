@@ -6,20 +6,19 @@ let projectTemplate = '<div class="project-info">\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
 
-chrome.storage.local.get(['jwtoken'], function(result) {
-  loadData(result.jwtoken)
+chrome.storage.local.get(['username', 'jwtoken'], function(result) {
+  loadData(result.username, result.jwtoken)
 });
 
-function loadData(jwtoken)
+function loadData(username, jwtoken)
 {
-  console.log('loadData: jwtoken' + jwtoken);
+  $.get( "http://localhost:8200/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( data ) {
+    console.log( "data: ", data );
+    load(data);
+  });
 }
-// $.get( "http://localhost:8080/biostore/permission?action=login&serverName=micro.biouml.org&password=&username=", function( data ) {
-//   console.log( "Load was performed.", data );
-//   load();
-// });
 
-function load() {
+function load(data) {
 
   const pmids = {
     29669169: {
@@ -51,7 +50,7 @@ function load() {
 
   $('.rprtid dd').each(function() {
     const articleID = $(this).html();
-    console.log(articleID);
+    //console.log(articleID);
 
     let text = '';
     if (articleID in pmids)

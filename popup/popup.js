@@ -1,12 +1,17 @@
 $(document).on('submit','form',function(e) {
   e.preventDefault();
 
+  let username = $( "#username" ).val();
+  if(username === undefined)username = "";
+
   const data = {
     action: "login",
     serverName: "micro.biouml.org",
-    username: $( "#username" ).val(),
+    username: username,
     password: $( "#password" ).val()
   };
+
+  chrome.storage.local.set({username: username});
 
   $.post( "http://localhost:8080/biostore/permission", data, function( res ) {
     const json = JSON.parse(res);
