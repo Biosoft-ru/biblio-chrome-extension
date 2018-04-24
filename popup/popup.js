@@ -2,6 +2,7 @@ const biostoreUrl = 'http://localhost:8080';
 const serverName = 'micro.biouml.org';
 
 $(document).on('submit','form',function(e) {
+  $('#message').text("");
   e.preventDefault();
 
   let username = $( "#username" ).val();
@@ -26,10 +27,21 @@ $(document).on('submit','form',function(e) {
 });
 
 $(document).on("click", "#logout", function(e) {
+  $('#message').text("");
   e.preventDefault();
 
-  chrome.storage.local.clear();
-  checkState();
+  $.post( biostoreUrl + "/biostore/permission", { action: "logout" }, function( res ) {
+    chrome.storage.local.clear(function () {
+      checkState();
+    });
+  }).fail(function (data) {
+    alert("Fail logout" + data);
+
+    chrome.storage.local.clear(function () {
+      checkState();
+    });
+  });
+
 });
 
 function checkState() {
