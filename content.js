@@ -47,7 +47,7 @@ function loadData(username, jwtoken)
 function load(data) {
 
   const pmids = {
-    29669169: {
+    29679524: {
       id: 2,
       projects: {
         "Demo": {
@@ -61,7 +61,7 @@ function load(data) {
         }
       }
     },
-    29668588: {
+    29679049: {
       id: 3,
       projects: {
         "Demo": {
@@ -82,7 +82,9 @@ function load(data) {
     let classes;
     if (articleID in pmids)
     {
+      let projects = '';
       classes = 'biblio-has-publications';
+
       $.each(pmids[articleID].projects, function( name, attr ) {
         let project = projectTemplate
           .replace('${name}', name)
@@ -100,8 +102,10 @@ function load(data) {
           project = project.replace('<p><b>keyWords: </b>${keyWords}</p>', '')
         }
 
-        text += project;
+        projects += project;
       });
+
+      text = '<div class="projects">' + projects + '</div>';
     }
     else
     {
