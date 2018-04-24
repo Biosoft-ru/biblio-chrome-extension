@@ -5,7 +5,8 @@ const biostoreUrl = 'http://localhost:8080';
 
 
 const projectTemplate = '<div class="project-info">\n' +
-  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <a href="http://biblio3.biouml.org/#!form/publications/Compact%20view/Edit/_cat_=2/selectedRows=2">Edit</a>\n' +
+  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <a href="' + biblioUrl + '/#!form/publications/' +
+            'Compact%20view/Edit/_cat_=${categoryID}/selectedRows=${publicationID}" target="_blank">Edit</a>\n' +
   '    <p><b>keyWords: </b>${keyWords}</p>\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
@@ -37,45 +38,46 @@ chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(r
 
 function loadData(username, jwtoken)
 {
-  $.get( biblioUrl + "/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( data ) {
-    console.log( "data: ", data );
-    if(data.type === "ok"){
-      load(data);
+  $.get( biblioUrl + "/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( json ) {
+    console.log( "json: ", json );
+    if(json.type === "ok"){
+      load(json);
     }else{
-      alert("Biblio error: " + data.message);
+      alert("Biblio error: " + json.message);
     }
   });
 }
 
-function load(data) {
+function load(json) {
 
-  const pmids = {
-    29679524: {
-      id: 2,
-      projects: {
-        "Demo": {
-          id: 2,
-          importance: 3,
-          comment: "test comment"
-        },
-        "GTRD": {
-          id: 4,
-          importance: 3,
-        }
-      }
-    },
-    29679049: {
-      id: 3,
-      projects: {
-        "Demo": {
-          id: 2,
-          importance: 3,
-        }
-      }
-    }
-  };
-
-//const articles = $('.rprtid dd');
+  // const pmids = {
+  //   29679524: {
+  //     id: 2,
+  //     projects: [
+  //       {
+  //         categoryID: 2,
+  //         name: "Demo",
+  //         importance: 3,
+  //         comment: "test comment"
+  //       },
+  //       {
+  //         categoryID: 4,
+  //         name: "GTRD",
+  //         importance: 3,
+  //       }
+  //     ]
+  //   },
+  //   29679049: {
+  //     id: 3,
+  //     projects: [
+  //       {
+  //         categoryID: 2,
+  //         name: "Demo",
+  //         importance: 3,
+  //       }
+  //     ]
+  //   }
+  // };
 
   $('.rprtid dd').each(function() {
     const articleID = $(this).html();
@@ -83,15 +85,16 @@ function load(data) {
 
     let text = '';
     let classes;
-    if (articleID in pmids)
+    if (articleID in json.data)
     {
       let projects = '';
       classes = 'biblio-has-publications';
 
-      $.each(pmids[articleID].projects, function( name, attr ) {
+      $.each(json.data[articleID].projects, function( id, attr ) {
         let project = projectTemplate
-          .replace('${name}', name)
-          .replace('${id}', attr.id)
+          .replace('${name}', attr.name)
+          .replace('${categoryID}', attr.categoryID)
+          .replace('${publicationID}', json.data[articleID].id)
           .replace('${importance}', attr.importance);
 
         if(attr.comment !== undefined){
@@ -114,7 +117,7 @@ function load(data) {
     {
       classes = 'biblio-no-has-publications';
       text = 'Biblio: ' +
-        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert" target="_blank">Insert</a>';
+        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert/pmid='+ articleID + '" target="_blank">Insert</a>';
     }
 
     const rprt = $(this).parent().parent().parent().parent();
