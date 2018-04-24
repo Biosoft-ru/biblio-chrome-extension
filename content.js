@@ -24,8 +24,6 @@ function loadData(username, jwtoken)
       load(data);
     }else{
       alert("Biblio error: " + data.message);
-
-      chrome.storage.local.clear();
     }
   });
 }
