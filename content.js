@@ -11,10 +11,9 @@ const projectTemplate = '<div class="project-info">\n' +
   '</div>';
 
 chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(result) {
-  if(result.jwtoken) {
-    loadData(result.username, result.jwtoken)
-  }else{
+  if(!result.jwtoken) {
     console.log( "Biblio: not authorized" );
+    return;
   }
 
   if(new Date().getTime() - result.jwtoken_get_time > 60 * 60 * 1000)
@@ -28,7 +27,11 @@ chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(r
       const json = JSON.parse(res);
       chrome.storage.local.set({jwtoken: json.jwtoken, jwtoken_get_time: new Date().getTime()});
       console.log( "Biblio: refreshJWToken success" );
+
+      loadData(result.username, json.jwtoken);
     });
+  }else{
+    loadData(result.username, result.jwtoken);
   }
 });
 
