@@ -1,20 +1,32 @@
 //debugger;
 
-let projectTemplate = '<div class="project-info">\n' +
+const biblioUrl = 'http://localhost:8200';
+
+const projectTemplate = '<div class="project-info">\n' +
   '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <a href="http://biblio3.biouml.org/#!form/publications/Compact%20view/Edit/_cat_=2/selectedRows=2">Edit</a>\n' +
   '    <p><b>keyWords: </b>${keyWords}</p>\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
 
 chrome.storage.local.get(['username', 'jwtoken'], function(result) {
-  loadData(result.username, result.jwtoken)
+  if(result.jwtoken) {
+    loadData(result.username, result.jwtoken)
+  }else{
+    console.log( "Biblio: not authorized" );
+  }
 });
 
 function loadData(username, jwtoken)
 {
-  $.get( "http://localhost:8200/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( data ) {
+  $.get( biblioUrl + "/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( data ) {
     console.log( "data: ", data );
-    load(data);
+    if(data.type === "ok"){
+      load(data);
+    }else{
+      alert("Biblio error: " + data.message);
+
+      chrome.storage.local.clear();
+    }
   });
 }
 
@@ -53,8 +65,10 @@ function load(data) {
     //console.log(articleID);
 
     let text = '';
+    let classes;
     if (articleID in pmids)
     {
+      classes = 'biblio-has-publications';
       $.each(pmids[articleID].projects, function( name, attr ) {
         let project = projectTemplate
           .replace('${name}', name)
@@ -77,13 +91,15 @@ function load(data) {
     }
     else
     {
+      classes = 'biblio-no-has-publications';
       text = 'Biblio: ' +
-        '<a href="http://biblio3.biouml.org/#!form/publications/Compact%20view/Insert" target="_blank">Insert</a>';
+        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert" target="_blank">Insert</a>';
     }
 
-    $(this).parent().parent().parent().parent()
-      .append( '<div class="biblio-info">' + text + '</div>' );
+    const rprt = $(this).parent().parent().parent().parent();
 
+    $(rprt).append( '<div class="biblio-info">' + text + '</div>' );
+    $(rprt).addClass( classes )
   });
 
 }
