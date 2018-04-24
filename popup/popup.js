@@ -15,11 +15,9 @@ $(document).on('submit','form',function(e) {
     password: $( "#password" ).val()
   };
 
-  chrome.storage.local.set({username: username});
-
   $.post( biostoreUrl + "/biostore/permission", data, function( res ) {
     const json = JSON.parse(res);
-    chrome.storage.local.set({jwtoken: json.jwtoken});
+    chrome.storage.local.set({jwtoken: json.jwtoken, username: username, jwtoken_get_time: new Date().getTime()});
 
     checkState();
   });
