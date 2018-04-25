@@ -39,7 +39,7 @@ chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(r
 
 function loadData(username, jwtoken)
 {
-  $.get( biblioUrl + "/api/pubMedInfo?username=" + username + "&jwtoken=" + jwtoken, function( json ) {
+  $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken}, function( json ) {
     console.log( "json: ", json );
     if(json.type === "ok"){
       load(json);
