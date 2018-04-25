@@ -1,17 +1,17 @@
-.project-info {
+.biblio-has-publications .project-info {
   margin-bottom: 10px;
 }
 
-.project-info:last-child {
+.biblio-has-publications .project-info:last-child {
   margin-bottom: 0;
 }
 
-.project-info h3 {
+.biblio-has-publications .project-info h3 {
   margin: 0;
   display: inline-block;
 }
 
-.project-info p {
+.biblio-has-publications .project-info p {
   margin: 0;
 }
 
@@ -19,7 +19,8 @@
   background-color: rgba(255, 47, 0, 0.4);
 }
 
-.projects {
+.biblio-has-publications .projects {
   border: 2px solid #ffab99;
+  margin-top: 4px;
   padding: 3px;
 }

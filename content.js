@@ -5,7 +5,8 @@ const biostoreUrl = 'http://localhost:8080';
 
 
 const projectTemplate = '<div class="project-info">\n' +
-  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <a href="' + biblioUrl + '/#!form/publications/' +
+  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <b> Status.: </b>${status}</span> ' +
+  '<a href="' + biblioUrl + '/#!form/publications/' +
             'Compact%20view/Edit/_cat_=${categoryID}/selectedRows=${publicationID}" target="_blank">Edit</a>\n' +
   '    <p><b>keyWords: </b>${keyWords}</p>\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
@@ -95,7 +96,8 @@ function load(json) {
           .replace('${name}', attr.name)
           .replace('${categoryID}', attr.categoryID)
           .replace('${publicationID}', json.data[articleID].id)
-          .replace('${importance}', attr.importance);
+          .replace('${importance}', attr.importance)
+          .replace('${status}', attr.status);
 
         if(attr.comment !== undefined){
           project = project.replace('${comment}', attr.comment)
