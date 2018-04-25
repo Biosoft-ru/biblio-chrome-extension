@@ -28,15 +28,17 @@ $(document).on("click", "#logout", function(e) {
   $('#message').text("");
   e.preventDefault();
 
-  $.post( biostoreUrl + "/biostore/permission", { action: "logout" }, function( res ) {
-    chrome.storage.local.clear(function () {
-      checkState();
-    });
-  }).fail(function (data) {
-    alert("Fail logout" + data);
+  chrome.storage.local.get(['username', 'jwtoken'], function(result) {
+    $.post( biostoreUrl + "/biostore/permission", { action: "logout", jwtoken: result.jwtoken }, function( res ) {
+      chrome.storage.local.clear(function () {
+        checkState();
+      });
+    }).fail(function (data) {
+      alert("Fail logout" + data);
 
-    chrome.storage.local.clear(function () {
-      checkState();
+      chrome.storage.local.clear(function () {
+        checkState();
+      });
     });
   });
 
