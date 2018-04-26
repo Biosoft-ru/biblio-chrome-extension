@@ -1,7 +1,7 @@
 //debugger;
 
-const biblioUrl = 'http://localhost:8200';
-const biostoreUrl = 'http://localhost:8080';
+const biblioUrl = 'http://biblio3.biouml.org';
+const biostoreUrl = 'https://bio-store.org';
 
 
 const projectTemplate = '<div class="project-info">\n' +

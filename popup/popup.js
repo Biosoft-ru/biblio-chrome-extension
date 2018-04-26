@@ -1,5 +1,5 @@
-const biostoreUrl = 'http://localhost:8080';
-const serverName = 'micro.biouml.org';
+const biostoreUrl = 'https://bio-store.org';
+const serverName = 'biblio.biouml.org';
 
 $(document).on('submit','form',function(e) {
   $('#message').text("");
