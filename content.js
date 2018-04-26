@@ -1,6 +1,6 @@
 //debugger;
 
-const biblioUrl = 'http://biblio3.biouml.org';
+const biblioUrl = 'https://biblio3.biouml.org';
 const biostoreUrl = 'https://bio-store.org';
 
 

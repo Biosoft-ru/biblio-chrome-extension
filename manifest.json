@@ -8,7 +8,6 @@
   "permissions": [
     "storage",
     "https://bio-store.org/biostore/permission",
-    "http://biblio3.biouml.org/api*",
     "https://biblio3.biouml.org/api*"
   ],
 
