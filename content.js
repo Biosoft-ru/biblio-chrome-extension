@@ -97,7 +97,7 @@ function load(json) {
           .replace('${categoryID}', attr.categoryID)
           .replace('${publicationID}', json.data[articleID].id)
           .replace('${importance}', attr.importance)
-          .replace('${status}', attr.status);
+          .replace('${status}', orEmpty(attr.status));
 
         if(attr.comment !== undefined){
           project = project.replace('${comment}', attr.comment)
@@ -128,4 +128,9 @@ function load(json) {
     $(rprt).addClass( classes )
   });
 
+}
+
+function orEmpty(attr) {
+  if(attr !== undefined)return attr;
+  else return '';
 }
