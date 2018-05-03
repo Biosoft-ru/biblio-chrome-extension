@@ -6,10 +6,10 @@ let abstract;
 let rprtArray;
 
 const projectTemplate = '<div class="project-info">\n' +
-  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <b> Status.: </b>${status}</span> ' +
+  '    <h3>${name}</h3> <span><b> Imp.: </b>${importance} <b> Status.: </b>${status}</span> ' +
   '<a href="' + biblioUrl + '/#!form/publications/' +
             'Compact%20view/Edit/_cat_=${categoryID}/selectedRows=${publicationID}" target="_blank">Edit</a>\n' +
-  '    <p><b>keyWords: </b>${keyWords}</p>\n' +
+  '    <p><b>KeyWords: </b>${keyWords}</p>\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
 
@@ -51,17 +51,17 @@ function findIDs(username, jwtoken){
     console.log("list");
     rprtArray = $('.rprtid dd');
 
-    let PMIDArray = [];
+    let PMIDs = [];
     rprtArray.each(function() {
-      PMIDArray.push($(this).html());
+      PMIDs.push($(this).html());
     });
-    loadData(username, jwtoken, PMIDArray);
+    loadData(username, jwtoken, PMIDs);
   }
 }
 
-function loadData(username, jwtoken, ids)
+function loadData(username, jwtoken, PMIDs)
 {
-  $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken, ids: ids}, function( json ) {
+  $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken, PMIDs: PMIDs}, function( json ) {
     console.log( "json: ", json );
     if(json.type === "ok"){
       addInfo(json);
@@ -138,9 +138,13 @@ function addInfo(json) {
           .replace('${name}', attr.name)
           .replace('${categoryID}', attr.categoryID)
           .replace('${publicationID}', json.data[PMID].id)
-          .replace('${importance}', attr.importance)
-          .replace('${status}', orEmpty(attr.status));
+          .replace('${importance}', attr.importance);
 
+        if(attr.status !== undefined){
+          project = project.replace('${status}', attr.status)
+        }else{
+          project = project.replace('<b> Status.: </b>${status}', '')
+        }
         if(attr.comment !== undefined){
           project = project.replace('${comment}', attr.comment)
         }else{
@@ -149,7 +153,7 @@ function addInfo(json) {
         if(attr.keyWords !== undefined){
           project = project.replace('${keyWords}', attr.keyWords)
         }else{
-          project = project.replace('<p><b>keyWords: </b>${keyWords}</p>', '')
+          project = project.replace('<p><b>KeyWords: </b>${keyWords}</p>', '')
         }
 
         projects += project;
@@ -164,9 +168,4 @@ function addInfo(json) {
     }
   }
 
-}
-
-function orEmpty(attr) {
-  if(attr !== undefined)return attr;
-  else return '';
 }
