@@ -2,7 +2,8 @@
 
 const biblioUrl = 'https://biblio3.biouml.org';
 const biostoreUrl = 'https://bio-store.org';
-
+let abstract;
+let rprtArray;
 
 const projectTemplate = '<div class="project-info">\n' +
   '    <h3>${name}</h3> <span><b> Imp.: </b>${importance}</span> <b> Status.: </b>${status}</span> ' +
@@ -30,26 +31,47 @@ chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(r
       chrome.storage.local.set({jwtoken: json.jwtoken, jwtoken_get_time: new Date().getTime()});
       console.log( "Biblio: refreshJWToken success" );
 
-      loadData(result.username, json.jwtoken);
+      findIDs(result.username, json.jwtoken);
     });
   }else{
-    loadData(result.username, result.jwtoken);
+    findIDs(result.username, result.jwtoken);
   }
 });
 
-function loadData(username, jwtoken)
+function findIDs(username, jwtoken){
+  abstract = $('.rprt.abstract');
+  if(abstract.length === 1)
+  {
+    const PMID = abstract.find('.rprtid dd').html();
+    console.log("abstract: " + PMID);
+    loadData(username, jwtoken, [PMID]);
+  }
+  else
+  {
+    console.log("list");
+    rprtArray = $('.rprtid dd');
+
+    let PMIDArray = [];
+    rprtArray.each(function() {
+      PMIDArray.push($(this).html());
+    });
+    loadData(username, jwtoken, PMIDArray);
+  }
+}
+
+function loadData(username, jwtoken, ids)
 {
-  $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken}, function( json ) {
+  $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken, ids: ids}, function( json ) {
     console.log( "json: ", json );
     if(json.type === "ok"){
-      load(json);
+      addInfo(json);
     }else{
       alert("Biblio error: " + json.message);
     }
   });
 }
 
-function load(json) {
+function addInfo(json) {
 
   // const pmids = {
   //   29679524: {
@@ -80,22 +102,42 @@ function load(json) {
   //   }
   // };
 
-  $('.rprtid dd').each(function() {
-    const articleID = $(this).html();
-    //console.log(articleID);
+  if(abstract.length === 1)
+  {
+    const PMID = abstract.find('.rprtid dd').html();
 
-    let text = '';
-    let classes;
-    if (articleID in json.data)
+    const info = '<div class="biblio-info">' + getText(PMID, json) + '</div>'
+    $( info ).insertAfter( abstract.find('.aux') );
+
+    $(abstract).addClass( getClasses(PMID, json) )
+  }
+  else
+  {
+    rprtArray.each(function() {
+      const PMID = $(this).html();
+
+      const rprt = $(this).parent().parent().parent().parent();
+
+      $(rprt).append( '<div class="biblio-info">' + getText(PMID, json) + '</div>' );
+      $(rprt).addClass( getClasses(PMID, json) )
+    });
+  }
+
+  function getClasses(PMID, json) {
+    if (PMID in json.data)return 'biblio-has-publications';
+    else return 'biblio-no-publications';
+  }
+
+  function getText(PMID, json) {
+    if (PMID in json.data)
     {
       let projects = '';
-      classes = 'biblio-has-publications';
 
-      $.each(json.data[articleID].projects, function( id, attr ) {
+      $.each(json.data[PMID].projects, function( id, attr ) {
         let project = projectTemplate
           .replace('${name}', attr.name)
           .replace('${categoryID}', attr.categoryID)
-          .replace('${publicationID}', json.data[articleID].id)
+          .replace('${publicationID}', json.data[PMID].id)
           .replace('${importance}', attr.importance)
           .replace('${status}', orEmpty(attr.status));
 
@@ -113,20 +155,14 @@ function load(json) {
         projects += project;
       });
 
-      text = '<div class="projects">' + projects + '</div>';
+      return '<div class="projects">' + projects + '</div>';
     }
     else
     {
-      classes = 'biblio-no-has-publications';
-      text = 'Biblio: ' +
-        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert/pmid='+ articleID + '" target="_blank">Insert</a>';
+      return 'Biblio: ' +
+        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert/pmid='+ PMID + '" target="_blank">Insert</a>';
     }
-
-    const rprt = $(this).parent().parent().parent().parent();
-
-    $(rprt).append( '<div class="biblio-info">' + text + '</div>' );
-    $(rprt).addClass( classes )
-  });
+  }
 
 }
 

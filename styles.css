@@ -15,7 +15,8 @@
   margin: 0;
 }
 
-.biblio-has-publications .title {
+.biblio-has-publications .title,
+.biblio-has-publications h1{
   background-color: rgba(255, 47, 0, 0.4);
 }
 
