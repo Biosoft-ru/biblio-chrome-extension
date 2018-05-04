@@ -50,12 +50,15 @@ function findIDs(username, jwtoken){
   {
     console.log("list");
     rprtArray = $('.rprtid dd');
-
-    let PMIDs = [];
-    rprtArray.each(function() {
-      PMIDs.push($(this).html());
-    });
-    loadData(username, jwtoken, PMIDs);
+    if(rprtArray.length > 0) {
+      let PMIDs = [];
+      rprtArray.each(function () {
+        PMIDs.push($(this).html());
+      });
+      loadData(username, jwtoken, PMIDs);
+    }else{
+      console.log("not found '.rprtid dd'");
+    }
   }
 }
 
