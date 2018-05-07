@@ -2,8 +2,6 @@
 
 const biblioUrl = 'https://biblio3.biouml.org';
 const biostoreUrl = 'https://bio-store.org';
-let abstract;
-let rprtArray;
 
 const projectTemplate = '<div class="project-info">\n' +
   '    <h3>${name}</h3> <span><b> Imp.: </b>${importance} <b> Status.: </b>${status}</span> ' +
@@ -38,43 +36,58 @@ chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(r
   }
 });
 
-function findIDs(username, jwtoken){
-  abstract = $('.rprt.abstract');
-  if(abstract.length === 1)
-  {
-    const PMID = abstract.find('.rprtid dd').html();
-    console.log("abstract: " + PMID);
-    loadData(username, jwtoken, [PMID]);
+const biblioSelectors = {
+  '.rprt.abstract': {
+    findID: function (item) {
+      return item.find('.rprtid dd').html()
+    },
+    addFunction: function (item, html) {
+      $(html).insertAfter( item.find('.aux') );
+    }
   }
-  else
-  {
-    console.log("list");
-    rprtArray = $('.rprtid dd');
-    if(rprtArray.length > 0) {
+};
+
+window.addBiblioSelector = function addBiblioSelector(selector, findID, addFunction)
+{
+  biblioSelectors[selector] = {
+    findID: findID,
+    addFunction: addFunction
+  }
+};
+
+addBiblioSelector('.rslt', function (item) {
+  return item.find('.rprtid dd').html();
+}, function (item, html) { item.append(html); });
+
+
+function findIDs(username, jwtoken)
+{
+  for (let selector in biblioSelectors) {
+    const items = $(selector);
+
+    if(items.length > 0) {
       let PMIDs = [];
-      rprtArray.each(function () {
-        PMIDs.push($(this).html());
+      items.each(function () {
+        PMIDs.push(biblioSelectors[selector].findID($(this)));
       });
-      loadData(username, jwtoken, PMIDs);
-    }else{
-      console.log("not found '.rprtid dd'");
+      loadData(username, jwtoken, PMIDs, selector, biblioSelectors[selector].addFunction);
     }
   }
 }
 
-function loadData(username, jwtoken, PMIDs)
+function loadData(username, jwtoken, PMIDs, selector, addFunction)
 {
   $.post( biblioUrl + "/api/pubMedInfo", {username: username, jwtoken: jwtoken, PMIDs: PMIDs}, function( json ) {
-    console.log( "json: ", json );
+    console.log( "json for " + selector, json );
     if(json.type === "ok"){
-      addInfo(json);
+      addInfo(json, selector, addFunction);
     }else{
       alert("Biblio error: " + json.message);
     }
   });
 }
 
-function addInfo(json) {
+function addInfo(json, selector, addFunction) {
 
   // const pmids = {
   //   29679524: {
@@ -105,24 +118,14 @@ function addInfo(json) {
   //   }
   // };
 
-  if(abstract.length === 1)
-  {
-    const PMID = abstract.find('.rprtid dd').html();
+  const items = $(selector);
+  if(items.length > 0) {
+    items.each(function () {
+      const PMID = biblioSelectors[selector].findID($(this));
 
-    const info = '<div class="biblio-info">' + getText(PMID, json) + '</div>'
-    $( info ).insertAfter( abstract.find('.aux') );
+      addFunction($(this), getText(PMID, json));
 
-    $(abstract).addClass( getClasses(PMID, json) )
-  }
-  else
-  {
-    rprtArray.each(function() {
-      const PMID = $(this).html();
-
-      const rprt = $(this).parent().parent().parent().parent();
-
-      $(rprt).append( '<div class="biblio-info">' + getText(PMID, json) + '</div>' );
-      $(rprt).addClass( getClasses(PMID, json) )
+      $(this).addClass(getClasses(PMID, json));
     });
   }
 
@@ -162,12 +165,13 @@ function addInfo(json) {
         projects += project;
       });
 
-      return '<div class="projects">' + projects + '</div>';
+      return '<div class="biblio-info"><div class="projects">' + projects + '</div></div>';
     }
     else
     {
-      return 'Biblio: ' +
-        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert/pmid='+ PMID + '" target="_blank">Insert</a>';
+      return '<div class="biblio-info">Biblio: ' +
+        '<a href="' + biblioUrl + '/#!form/publications/Compact%20view/Insert/pmid='+ PMID + '" ' +
+           'target="_blank">Insert</a></div>';
     }
   }
 
