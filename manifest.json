@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Biblio chrome extension",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
 
   "permissions": [
@@ -17,8 +17,8 @@
 
   "content_scripts": [{
     "css": ["styles.css"],
-    "js": ["jquery.js", "content.js"],
-    "matches": ["https://www.ncbi.nlm.nih.gov/pubmed*", "http://localhost:8000/"]
+    "js": ["jquery.js", "core.js", "selectors.js"],
+    "matches": ["https://www.ncbi.nlm.nih.gov/*", "http://localhost:8000/"]
   }]
 
 }

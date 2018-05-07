@@ -16,7 +16,8 @@
 }
 
 .biblio-has-publications .title,
-.biblio-has-publications h1{
+.biblio-has-publications h1,
+.biblio-has-publications .ref.pubmed {
   background-color: rgba(255, 47, 0, 0.4);
 }
 

@@ -11,43 +11,9 @@ const projectTemplate = '<div class="project-info">\n' +
   '    <p><b>Comment: </b>${comment}</p>\n' +
   '</div>';
 
-chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(result) {
-  if(!result.jwtoken) {
-    console.log( "Biblio: not authorized" );
-    return;
-  }
+const biblioSelectors = {};
 
-  if(new Date().getTime() - result.jwtoken_get_time > 60 * 60 * 1000)
-  {
-    const data = {
-      action: "refreshJWToken",
-      jwtoken: result.jwtoken
-    };
-
-    $.post( biostoreUrl + "/biostore/permission", data, function( res ) {
-      const json = JSON.parse(res);
-      chrome.storage.local.set({jwtoken: json.jwtoken, jwtoken_get_time: new Date().getTime()});
-      console.log( "Biblio: refreshJWToken success" );
-
-      findIDs(result.username, json.jwtoken);
-    });
-  }else{
-    findIDs(result.username, result.jwtoken);
-  }
-});
-
-const biblioSelectors = {
-  '.rprt.abstract': {
-    findID: function (item) {
-      return item.find('.rprtid dd').html()
-    },
-    addFunction: function (item, html) {
-      $(html).insertAfter( item.find('.aux') );
-    }
-  }
-};
-
-window.addBiblioSelector = function addBiblioSelector(selector, findID, addFunction)
+window.biblioAddSelector = function addBiblioSelector(selector, findID, addFunction)
 {
   biblioSelectors[selector] = {
     findID: findID,
@@ -55,10 +21,32 @@ window.addBiblioSelector = function addBiblioSelector(selector, findID, addFunct
   }
 };
 
-addBiblioSelector('.rslt', function (item) {
-  return item.find('.rprtid dd').html();
-}, function (item, html) { item.append(html); });
+window.biblioStart = function run(){
+  chrome.storage.local.get(['username', 'jwtoken', 'jwtoken_get_time'], function(result) {
+    if(!result.jwtoken) {
+      console.log( "Biblio: not authorized" );
+      return;
+    }
 
+    if(new Date().getTime() - result.jwtoken_get_time > 60 * 60 * 1000)
+    {
+      const data = {
+        action: "refreshJWToken",
+        jwtoken: result.jwtoken
+      };
+
+      $.post( biostoreUrl + "/biostore/permission", data, function( res ) {
+        const json = JSON.parse(res);
+        chrome.storage.local.set({jwtoken: json.jwtoken, jwtoken_get_time: new Date().getTime()});
+        console.log( "Biblio: refreshJWToken success" );
+
+        findIDs(result.username, json.jwtoken);
+      });
+    }else{
+      findIDs(result.username, result.jwtoken);
+    }
+  });
+};
 
 function findIDs(username, jwtoken)
 {
@@ -68,7 +56,8 @@ function findIDs(username, jwtoken)
     if(items.length > 0) {
       let PMIDs = [];
       items.each(function () {
-        PMIDs.push(biblioSelectors[selector].findID($(this)));
+        const PMID = biblioSelectors[selector].findID($(this));
+        if(PMID !== undefined)PMIDs.push(PMID);
       });
       loadData(username, jwtoken, PMIDs, selector, biblioSelectors[selector].addFunction);
     }
